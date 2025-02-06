@@ -10,20 +10,42 @@
 #define MPU6050_H
 
 /* This is for STM32 HAL library */
-#include "main.h"
+#include "stm32f1xx_hal.h"
 /* ----------------------------- */
 
 #include "bsp_i2c.h"
+#include "bsp_delay.h"
+#include <math.h>
 
 typedef enum
 {
     MPU6050_OK = 0,
     MPU6050_ERROR = 1,
-    MPU6050_TIMEOUT = 2
+    MPU6050_I2C_WRITE_ERROR = 2,
+    MPU6050_I2C_READ_ERROR = 3,
+    MPU6050_TIMEOUT
 } MPU6050_StatusTypeDef;
 
-#define MPU6050_ADDRESS 0x68
+typedef enum
+{
+    AFS_2G = 0,
+    AFS_4G,
+    AFS_8G,
+    AFS_16G
+} AFS_TypeDef;
+
+typedef enum
+{
+    GFS_250DPS = 0,
+    GFS_500DPS,
+    GFS_1000DPS,
+    GFS_2000DPS
+} GFS_TypeDef;
+
+#define MPU6050_ADDRESS (0x68 << 1)
 #define MPU6050_I2C_ID I2C1_ID
+#define MPU6050_ACCEL_SCALE AFS_2G
+#define MPU6050_GYRO_SCALE GFS_250DPS
 
 /* MPU-6050 register definition ------------------------------------------------*/
 #define REG_SELF_TEST_X         0x0D
@@ -110,11 +132,34 @@ typedef enum
 #define REG_FIFO_R_W            0x74
 #define REG_WHO_AM_I            0x75
 
+typedef struct IMU_Data_Frame
+{
+    double current_timestamp;
+    double last_timestamp;
+    double delta_t;
+    float accel_data[3]; //{x, y, z}
+    float accel_bias[3]; //{x, y, z}
+    float accel_res;
+    float gyro_data[3]; //{x, y, z}
+    float gyro_bias[3]; //{x, y, z}
+    float gyro_res;
+    float quat[4]; //{w, x, y, z}
+    float self_test_accel[3]; //{x, y, z}
+    float self_test_gyro[3]; //{x, y, z}
+    float filter_beta;
+    float filter_zeta;
+} IMU_Data_Frame;
 
 /* MPU-6050 funtions ------------------------------------------------*/
+MPU6050_StatusTypeDef MPU6050_Init(IMU_Data_Frame *imu_data_frame);
+MPU6050_StatusTypeDef MPU6050_ReadAccel(IMU_Data_Frame *imu_data_frame);
+MPU6050_StatusTypeDef MPU6050_ReadGyro(IMU_Data_Frame *imu_data_frame);
+MPU6050_StatusTypeDef MPU6050_UpdataTimestamp(IMU_Data_Frame *imu_data_frame);
+MPU6050_StatusTypeDef MPU6050_UpdateOrientation(IMU_Data_Frame *imu_data_frame);
+MPU6050_StatusTypeDef MPU6050_ShowData(IMU_Data_Frame *imu_data_frame);
 
-MPU6050_StatusTypeDef MPU6050_Init(void);
-MPU6050_StatusTypeDef MPU6050_ReadAccel(uint16_t *pBuffer);
-MPU6050_StatusTypeDef MPU6050_ReadGyro(uint16_t *pBuffer);
+static MPU6050_StatusTypeDef MPU6050_Reset(void);
+static MPU6050_StatusTypeDef MPU6050_SelfTest(IMU_Data_Frame *imu_data_frame);
+static MPU6050_StatusTypeDef MPU6050_Calibrate(IMU_Data_Frame *imu_data_frame);
 
 #endif
