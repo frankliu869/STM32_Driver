@@ -23,7 +23,9 @@ typedef enum
     MPU6050_ERROR = 1,
     MPU6050_I2C_WRITE_ERROR = 2,
     MPU6050_I2C_READ_ERROR = 3,
-    MPU6050_TIMEOUT
+    MPU6050_TIMEOUT,
+    MPU6050_DATA_READY,
+    MPU6050_DATA_UNREADY
 } MPU6050_StatusTypeDef;
 
 typedef enum
@@ -134,8 +136,8 @@ typedef enum
 
 typedef struct IMU_Data_Frame
 {
-    double current_timestamp;
-    double last_timestamp;
+    uint32_t current_timestamp; //ms
+    uint32_t last_timestamp; //ms
     double delta_t;
     float accel_data[3]; //{x, y, z}
     float accel_bias[3]; //{x, y, z}
@@ -156,10 +158,9 @@ MPU6050_StatusTypeDef MPU6050_ReadAccel(IMU_Data_Frame *imu_data_frame);
 MPU6050_StatusTypeDef MPU6050_ReadGyro(IMU_Data_Frame *imu_data_frame);
 MPU6050_StatusTypeDef MPU6050_UpdataTimestamp(IMU_Data_Frame *imu_data_frame);
 MPU6050_StatusTypeDef MPU6050_UpdateOrientation(IMU_Data_Frame *imu_data_frame);
-MPU6050_StatusTypeDef MPU6050_ShowData(IMU_Data_Frame *imu_data_frame);
+MPU6050_StatusTypeDef MPU6050_ShowDataFrame(IMU_Data_Frame *imu_data_frame);
+MPU6050_StatusTypeDef MPU6050_TransmitDataFrame(IMU_Data_Frame *imu_data_frame);
+MPU6050_StatusTypeDef MPU6050_GetDataStatus(void);
 
-static MPU6050_StatusTypeDef MPU6050_Reset(void);
-static MPU6050_StatusTypeDef MPU6050_SelfTest(IMU_Data_Frame *imu_data_frame);
-static MPU6050_StatusTypeDef MPU6050_Calibrate(IMU_Data_Frame *imu_data_frame);
 
 #endif

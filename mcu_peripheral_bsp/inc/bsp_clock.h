@@ -2,17 +2,17 @@
   ******************************************************************************
   * @file    bsp_delay.h
   * @author  NTUT Fryan Liu
-  * @brief   Header file of delay function
+  * @brief   Header file of clock function
   ******************************************************************************
   */
 
-#ifndef BSP_DELAY_H
-#define BSP_DELAY_H
+ #ifndef BSP_CLOCK_H
+ #define BSP_CLOCK_H
 
 /* This is for STM32 HAL library */
 #include "stm32f1xx_hal.h"
 /* ----------------------------- */
 
-void delay_ms(short int ms);
+float Clock_GetTimeStampUs(void);
 
-#endif
+ #endif
